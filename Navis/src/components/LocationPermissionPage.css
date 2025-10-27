@@ -1,0 +1,351 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--branco);
+  height: 100%;
+  width: 100%;
+}
+
+:root {
+  --azul-claro: #3adbde;
+  --azul: #1325b4;
+  --laranja: #ff751f;
+  --vermelho: #eb4635;
+  --branco: #d9d9d9;
+}
+
+.location-page {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--branco);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .location-page {
+    background: var(--branco) !important;
+  }
+}
+
+/* Permission Section */
+.location-page,
+.location-main,
+.location-container {
+  overflow: visible !important;
+}
+
+.permission-card,
+.status-card {
+  background: var(--branco);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 600px;
+  border: 2px solid var(--azul-claro);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .permission-card,
+  .status-card {
+    background: var(--branco) !important;
+    border: 3px solid var(--azul-claro) !important;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.34),
+      0 10px 20px -10px rgba(0, 0, 0, 0.2) !important;
+    color: #0f172a;
+  }
+}
+
+.permission-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--azul);
+  margin: 0 0 12px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .permission-title,
+  .status-title,
+  .permission-description {
+    color: var(--azul) !important;
+  }
+}
+
+.permission-description {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Permission Actions */
+.permission-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.permission-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 15px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.permission-button.allow {
+  background: linear-gradient(135deg, #1325b4, #3adbde);
+  color: var(--branco);
+}
+
+.permission-button.allow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.permission-button.deny:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.permission-footer {
+  text-align: center;
+}
+
+.skip-button {
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.skip-button:hover {
+  color: var(--azul);
+}
+
+@media (prefers-color-scheme: dark) {
+  .skip-button {
+    color: var(--azul-claro) !important;
+  }
+
+  .skip-button:hover {
+    color: var(--azul) !important;
+  }
+}
+
+/* Status Section */
+.status-section {
+  display: flex;
+  justify-content: center;
+}
+
+.small-spinner {
+  color: var(--azul);
+}
+
+.status-card.success {
+  border-left: 4px solid var(--azul-claro);
+}
+
+.status-card.error {
+  border-left: 4px solid var(--vermelho);
+}
+
+.status-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--branco);
+  margin: 0 0 12px 0;
+}
+
+.status-description {
+  font-size: 16px;
+  color: var(--branco);
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.success-message {
+  color: var(--azul);
+  margin-bottom: 10px;
+}
+
+.location-info {
+  color: var(--branco);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.location-info p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--azul);
+}
+
+.location-info p:last-child {
+  margin-bottom: 0;
+}
+
+.status-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.continue-button {
+  background: linear-gradient(135deg, #1325b4, #3adbde);
+  color: var(--branco);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+
+.continue-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .location-main {
+    padding: 20px 12px;
+  }
+
+  .permission-card,
+  .status-card {
+    padding: 24px 20px;
+  }
+
+  .permission-title {
+    font-size: 20px;
+  }
+
+  .benefit-item {
+    padding: 16px;
+  }
+
+  .benefit-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .location-page {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+
+  .location-header {
+    background: rgba(15, 23, 42, 0.1);
+    border-bottom-color: rgba(51, 65, 85, 0.2);
+  }
+
+  .logo-text {
+    color: #f1f5f9;
+  }
+
+  .permission-card,
+  .status-card {
+    background: var(--branco);
+    border-color: rgba(51, 65, 85, 0.8);
+  }
+
+  .permission-title,
+  .status-title {
+    color: #f1f5f9;
+  }
+
+  .permission-description,
+  .status-description {
+    color: #94a3b8;
+  }
+
+  .benefit-item {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .benefit-content h3 {
+    color: #f1f5f9;
+  }
+
+  .benefit-content p {
+    color: #94a3b8;
+  }
+
+  .location-info {
+    background: #1f2937;
+  }
+
+  .location-info p {
+    color: #d1d5db;
+  }
+
+  .permission-button.deny {
+    background: #334155;
+    color: #d1d5db;
+    border-color: #475569;
+  }
+
+  .permission-button.deny:hover {
+    background: #475569;
+    border-color: #64748b;
+  }
+
+  .retry-button {
+    background: #334155;
+    color: #d1d5db;
+    border-color: #475569;
+  }
+
+  .retry-button:hover {
+    background: #475569;
+    border-color: #64748b;
+  }
+
+  .skip-button {
+    color: #94a3b8;
+  }
+
+  .skip-button:hover {
+    color: #d1d5db;
+  }
+}

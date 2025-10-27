@@ -1,0 +1,175 @@
+/* Reset básico */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  background-color: var(--branco);
+  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
+}
+
+button:focus,
+button:active {
+  outline: none;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  outline: none;
+  box-shadow: none;
+}
+
+:root {
+  --azul-claro: #3adbde;
+  --azul: #1325b4;
+  --laranja: #ff751f;
+  --vermelho: #eb4635;
+  --branco: #d9d9d9;
+}
+
+.dashboard-page {
+  padding-top: 150px;
+}
+
+.route-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  width: 580px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+.route-inputs h2 {
+  font-size: 25px;
+  color: var(--azul);
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.route-inputs input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--azul-claro);
+  background: #00fbff2d;
+  font-size: 15px;
+  color: var(--azul);
+  transition: border-color 0.2s;
+}
+
+.route-inputs input:focus {
+  outline: none;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1325b4, #3adbde);
+  color: var(--branco);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.btn-secondary {
+  background: var(--branco);
+  color: var(--azul);
+  border: 1px solid var(--azul);
+}
+
+.btn-secondary:hover {
+  background: #00fbff2d;
+}
+
+/* Informações da rota */
+.route-info {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.route-info p {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.route-info strong {
+  color: var(--azul);
+}
+
+.leaflet-container {
+  margin-top: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.marker-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--azul-claro);
+  animation: bounce 2s infinite;
+}
+
+.marker-circle.origin {
+  background: var(--azul);
+}
+
+.marker-circle.destination {
+  background: var(--vermelho);
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* === Linha da rota (Polyline) === */
+.leaflet-routing-line {
+  stroke: var(--azul) !important;
+  stroke-width: 6 !important;
+  stroke-opacity: 0.9 !important;
+}
+
+/* === Tela de carregamento === */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: var(--azul);
+  font-size: 18px;
+  font-weight: 600;
+}
