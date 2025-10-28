@@ -20,7 +20,6 @@ const destinationIcon = new L.DivIcon({
   iconSize: [30, 30],
 });
 
-//  Recentrar mapa ao mudar coordenadas
 function RecenterMap({ lat, lng }) {
   const map = useMap();
   useEffect(() => {
@@ -35,18 +34,15 @@ const DashboardPage = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [originAddress, setOriginAddress] = useState("");
   const [destinationAddress, setDestinationAddress] = useState("");
-  const [routeInfo, setRouteInfo] = useState(null);
   const [map, setMap] = useState(null);
   const [routing, setRouting] = useState(null);
 
-  //  Carregar dados do usuário autenticado
   useEffect(() => {
     const isAuth = authService.checkAuth();
     if (isAuth) setUser(authService.getCurrentUser());
     setLoading(false);
   }, []);
 
-  //  Obter localização atual do usuário
   const getCurrentPosition = useCallback(() => {
     if (!navigator.geolocation) {
       alert("Geolocalização não é suportada neste navegador.");
@@ -63,7 +59,6 @@ const DashboardPage = () => {
     );
   }, []);
 
-  //  Calcular rota entre origem e destino
   const calculateRoute = useCallback(() => {
     if (!originAddress || !destinationAddress) {
       alert("Por favor, preencha origem e destino.");
@@ -76,12 +71,11 @@ const DashboardPage = () => {
 
     if (!map) return;
 
-    // Remove rota anterior, se existir
     if (routing) routing.remove();
 
     const control = L.Routing.control({
       waypoints: [L.latLng(lat1, lng1), L.latLng(lat2, lng2)],
-      lineOptions: { styles: [{ color: "#8b5cf6", weight: 6 }] },
+      lineOptions: { styles: [{ color: "#00c3ff", weight: 6 }] },
       addWaypoints: false,
       draggableWaypoints: false,
       fitSelectedRoutes: true,
@@ -91,58 +85,98 @@ const DashboardPage = () => {
     }).addTo(map);
 
     setRouting(control);
-    setRouteInfo({ origin: originAddress, destination: destinationAddress });
   }, [originAddress, destinationAddress, map, routing]);
 
   if (loading) return <div className="loading">Carregando...</div>;
 
   return (
-    <div className="dashboard-page">
-      <div className="route-inputs">
-        <h2>Informações da Rota</h2>
-        <input
-          type="text"
-          placeholder="Local de Partida"
-          value={originAddress}
-          onChange={(e) => setOriginAddress(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Destino"
-          value={destinationAddress}
-          onChange={(e) => setDestinationAddress(e.target.value)}
-        />
+    <div className="dashboard-wrapper">
+      <div className="dashboard-container">
+        {/* Mapa */}
+        <MapContainer
+          center={currentLocation || [-23.5505, -46.6333]}
+          zoom={15}
+          whenCreated={setMap}
+          className="map"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {currentLocation && (
+            <>
+              <Marker
+                position={[currentLocation.lat, currentLocation.lng]}
+                icon={originIcon}
+              />
+              <RecenterMap lat={currentLocation.lat} lng={currentLocation.lng} />
+            </>
+          )}
+        </MapContainer>
 
-        <div className="buttons">
-          <button className="btn-primary" onClick={calculateRoute}>
-            Calcular Rota
-          </button>
-          <button className="btn-secondary" onClick={getCurrentPosition}>
-            Usar Localização Atual
-          </button>
+        {/* Inputs */}
+        <div className="search-container">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Ponto de partida"
+              value={originAddress}
+              onChange={(e) => setOriginAddress(e.target.value)}
+            />
+          </div>
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Para onde você vai?"
+              value={destinationAddress}
+              onChange={(e) => setDestinationAddress(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Alertas */}
+        <div className="alerts">
+          <div className="alert-card obra">
+            🚧 Obra na Av. Principal – Iluminação reduzida.
+          </div>
+          <div className="alert-card evento">
+            🎉 Evento no Senac Lapa Tito até 19h
+          </div>
+        </div>
+
+        {/* Rotas Sugeridas */}
+        <div className="routes-card">
+          <h3>Rotas Sugeridas</h3>
+          <div className="route-item segura">
+            <div className="left">
+              <p className="title">Rota Segura 🔒</p>
+              <span>95% · 27 min · 8,1 km</span>
+            </div>
+            <p className="tag">Monitorada</p>
+          </div>
+          <div className="route-item rapida">
+            <div className="left">
+              <p className="title">Rota Rápida ⚡</p>
+              <span>78% · 18 min · 8,3 km</span>
+            </div>
+            <p className="tag">Iluminação moderada</p>
+          </div>
+          <div className="route-item alternativa">
+            <div className="left">
+              <p className="title">Rota Alternativa 🛣️</p>
+              <span>88% · 19 min · 8,1 km</span>
+            </div>
+            <p className="tag">Bem iluminada</p>
+          </div>
+        </div>
+
+        {/* Rodapé */}
+        <div className="bottom-bar">
+          <button className="icon-btn">🏠</button>
+          <button className="icon-btn alerta">🚨</button>
+          <button className="icon-btn">⚙️</button>
         </div>
       </div>
-
-      <MapContainer
-        center={currentLocation || [-23.5505, -46.6333]}
-        zoom={13}
-        style={{ height: "400px", width: "100%", marginTop: "20px" }}
-        whenCreated={setMap}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {currentLocation && (
-          <Marker
-            position={[currentLocation.lat, currentLocation.lng]}
-            icon={originIcon}
-          />
-        )}
-        {currentLocation && (
-          <RecenterMap lat={currentLocation.lat} lng={currentLocation.lng} />
-        )}
-      </MapContainer>
     </div>
   );
 };

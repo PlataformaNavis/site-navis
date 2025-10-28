@@ -197,7 +197,7 @@ const LocationPermissionPage = ({
               </div>
               <h2 className="permission-title">Compartilhar Localização</h2>
               <p className="permission-description">
-                Permita que o NAVIS acesse sua localização em tempo real para
+                Permita que a NAVIS acesse sua localização em tempo real para
                 melhorar a experiência e fornecer informações relevantes
                 baseadas na sua posição.
               </p>

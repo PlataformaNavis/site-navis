@@ -109,3 +109,62 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* === Nav responsiva === */
+@media (max-width: 1024px) {
+  .app-navigation {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px; /* largura fixa */
+    flex-wrap: wrap; /* permite quebrar os botões se não couberem */
+    justify-content: space-between;
+  }
+
+  .nav-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
+
+/* Botão hamburguer */
+.hamburger-btn {
+  display: none;
+  background: var(--azul);
+  color: var(--branco);
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .nav-buttons {
+    display: none; /* esconde os botões por padrão */
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .nav-buttons.open {
+    display: flex; /* mostra quando menu aberto */
+  }
+
+  .hamburger-btn {
+    display: block; /* botão visível */
+  }
+
+  .app-navigation {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 8px;
+  }
+}
+

@@ -4,15 +4,17 @@ import "./LoginPage.css";
 
 const LoginPage = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Verifica se já está autenticado
   useEffect(() => {
     if (authService.checkAuth()) {
       setSuccess("Você já está logado!");
@@ -25,7 +27,6 @@ const LoginPage = ({ onLoginSuccess }) => {
       ...prev,
       [name]: value,
     }));
-    // Limpa erros quando o usuário digita
     if (error) setError(null);
   };
 
@@ -36,75 +37,102 @@ const LoginPage = ({ onLoginSuccess }) => {
     setSuccess(null);
 
     try {
-      const result = await authService.login(formData.email, formData.password);
-      setSuccess(result.message);
-      console.log("Login successful:", result);
-
-      // Chama o callback de sucesso
-      if (onLoginSuccess) {
-        onLoginSuccess();
+      if (isLoginMode) {
+        const result = await authService.login(
+          formData.email,
+          formData.password
+        );
+        setSuccess(result.message || "Login realizado com sucesso!");
+        if (onLoginSuccess) onLoginSuccess();
+      } else {
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error("As senhas não coincidem.");
+        }
+        const result = await authService.register(formData);
+        setSuccess(result.message || "Conta criada com sucesso!");
       }
-    } catch (error) {
-      setError(error.message);
-      console.error("Login error:", error);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider) => {
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
+  const handleGoogleLogin = async () => {
     try {
-      const result = await authService.loginSocial(provider);
-      setSuccess(result.message);
-      console.log(`${provider} login successful:`, result);
+      await authService.loginSocial("google");
+      if (onLoginSuccess) onLoginSuccess();
 
-      // Redireciona após 2 segundos
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error) {
-      setError(error.message);
-      console.error(`${provider} login error:`, error);
-    } finally {
-      setIsLoading(false);
+      // redireciona para a página de localização
+      window.location.href = "/localizacao";
+    } catch (err) {
+      setError("Falha ao entrar com o Google.");
     }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Logo/Brand */}
         <div className="login-header">
           <div className="logo">
             <img src="/NAVIS.jpg" alt="Navis Logo" />
           </div>
           <p className="login-subtitle">
-            Bem-vindo! Faça login para continuar.
+            {isLoginMode
+              ? "Bem-vindo! Faça login para continuar."
+              : "Crie sua conta para começar a usar a plataforma."}
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Alternador de modo */}
+        <div className="mode-switch">
+          <button
+            className={`mode-btn ${isLoginMode ? "active" : ""}`}
+            onClick={() => setIsLoginMode(true)}
+          >
+            Fazer login
+          </button>
+          <button
+            className={`mode-btn ${!isLoginMode ? "active" : ""}`}
+            onClick={() => setIsLoginMode(false)}
+          >
+            Criar conta
+          </button>
+        </div>
+
         <form className="login-form" onSubmit={handleSubmit}>
+          {!isLoginMode && (
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">
+                Nome completo
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="Seu nome completo"
+                required
+              />
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               Email
             </label>
-            <div className="input-container">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="Email"
-                required
-              />
-            </div>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Email"
+              required
+            />
           </div>
 
           <div className="form-group">
@@ -127,6 +155,7 @@ const LoginPage = ({ onLoginSuccess }) => {
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
               >
+                {/* Ícone do olho */}
                 <svg
                   width="20"
                   height="20"
@@ -134,7 +163,6 @@ const LoginPage = ({ onLoginSuccess }) => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {/* Olho normal */}
                   <g style={{ display: showPassword ? "none" : "block" }}>
                     <path
                       d="M10 3C5.5 3 1.73 6.11 1 10.5C1.73 14.89 5.5 18 10 18C14.5 18 18.27 14.89 19 10.5C18.27 6.11 14.5 3 10 3Z"
@@ -151,8 +179,6 @@ const LoginPage = ({ onLoginSuccess }) => {
                       strokeLinejoin="round"
                     />
                   </g>
-
-                  {/* Olho com risco */}
                   <g style={{ display: showPassword ? "block" : "none" }}>
                     <path
                       d="M10 3C5.5 3 1.73 6.11 1 10.5C1.73 14.89 5.5 18 10 18C14.5 18 18.27 14.89 19 10.5C18.27 6.11 14.5 3 10 3Z"
@@ -181,43 +207,42 @@ const LoginPage = ({ onLoginSuccess }) => {
             </div>
           </div>
 
-          <div className="form-options">
-            <label className="checkbox-container">
-              <input type="checkbox" className="checkbox-input" />
-              <span className="checkbox-custom"></span>
-              <span className="checkbox-label">Lembre-me</span>
-            </label>
-            <a href="#" className="forgot-password">
-              Esqueceu sua senha?
-            </a>
-          </div>
+          {!isLoginMode && (
+            <div className="form-group">
+              <label htmlFor="confirmPassword" className="form-label">
+                Confirmar senha
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="Confirme sua senha"
+                required
+              />
+            </div>
+          )}
 
           <button
             type="submit"
             className={`login-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
-            {isLoading ? (
-              <>
-                <div className="spinner"></div>
-                Entrar...
-              </>
-            ) : (
-              "Entrar"
-            )}
+            {isLoading
+              ? "Processando..."
+              : isLoginMode
+              ? "Fazer login"
+              : "Criar conta"}
           </button>
         </form>
-
-        {/* Divider */}
-        <div className="divider">
-          <span className="divider-text">Ou continue com</span>
-        </div>
 
         {/* Social Login */}
         <div className="social-login">
           <button
             className="social-button google"
-            onClick={() => handleSocialLogin("google")}
+            onClick={handleGoogleLogin}
             disabled={isLoading}
           >
             <svg
@@ -248,79 +273,23 @@ const LoginPage = ({ onLoginSuccess }) => {
           </button>
         </div>
 
-        {/* Messages */}
-        {error && (
-          <div className="message error">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                stroke="#EF4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M10 6V10"
-                stroke="#EF4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M10 14H10.01"
-                stroke="#EF4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {error}
-          </div>
-        )}
+          {!isLoginMode && (
+            <p className="terms-message">
+              Ao criar uma conta, você concorda com nossos termos de uso e
+              políticas de privacidade. Sua segurança é nossa prioridade.{" "}
+              <a
+                href="/termos-de-uso"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LEIA MAIS DOS NOSSOS TERMOS DE USO AQUI
+              </a>
+            </p>
+          )}
 
-        {success && (
-          <div className="message success">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                stroke="#3adbde"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M6 10L8.5 12.5L14 7"
-                stroke="#3adbde"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {success}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="login-footer">
-          <p>
-            Não tem uma conta?{" "}
-            <a href="#" className="signup-link">
-              Cadastre-se
-            </a>
-          </p>
-        </div>
+        {/* Mensagens */}
+        {error && <div className="message error">{error}</div>}
+        {success && <div className="message success">{success}</div>}
       </div>
     </div>
   );

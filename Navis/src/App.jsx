@@ -9,6 +9,7 @@ import "./App.css";
 function App() {
   const [currentPage, setCurrentPage] = useState("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // novo estado para o menu hamburguer
 
   useEffect(() => {
     const checkAuth = () => {
@@ -47,19 +48,19 @@ function App() {
           <LocationPermissionPage
             onPermissionGranted={() => setCurrentPage("dashboard")}
             onPermissionDenied={() => setCurrentPage("dashboard")}
-            onNavigateToDashboard={() => setCurrentPage("dashboard")} // NOVA PROP!
+            onNavigateToDashboard={() => setCurrentPage("dashboard")}
           />
         );
       case "dashboard":
         return (
           <DashboardPage
-            onNavigateToProfile={() => setCurrentPage("profile")} // NOVA PROP!
+            onNavigateToProfile={() => setCurrentPage("profile")}
           />
         );
       case "profile":
         return (
           <UserProfilePage
-            onNavigateToDashboard={() => setCurrentPage("dashboard")} // NOVA PROP!
+            onNavigateToDashboard={() => setCurrentPage("dashboard")}
           />
         );
       default:
@@ -69,7 +70,6 @@ function App() {
 
   return (
     <>
-      {/* Navegação de Debug */}
       {currentPage !== "login" && (
         <nav className="app-navigation">
           <div className="voltal">
@@ -77,11 +77,19 @@ function App() {
               onClick={() => setCurrentPage("login")}
               className="back-button"
             >
-              <img src="/left-arrow (1).png" alt="" />Login
+              <img src="/left-arrow (1).png" alt="" /> Login
             </button>
           </div>
 
-          <div className="nav-buttons">
+          {/* Botão hamburguer */}
+          <button
+            className="hamburger-btn"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            ☰
+          </button>
+
+          <div className={`nav-buttons ${isMenuOpen ? "open" : ""}`}>
             <button
               onClick={() => setCurrentPage("location")}
               className="nav-button"
@@ -95,7 +103,7 @@ function App() {
             >
               <img src="/home.png" alt="" /> Home
             </button>
-            
+
             <button
               onClick={() => setCurrentPage("community")}
               className="nav-button"
