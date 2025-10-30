@@ -30,13 +30,14 @@ input::-ms-reveal {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 140px;
+  padding-top: 190px;
+  padding-bottom: 30px;
 }
 
 .dashboard-container {
   position: relative;
-  height: 100vh;
-  width: 600px;
+  height: 700px;
+  width: 800px;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
@@ -118,7 +119,7 @@ input::-ms-reveal {
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  height: 270px;
+  height: 290px;
   color: #333;
   background: #d9d9d9af;
   border-radius: 20px;

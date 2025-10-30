@@ -13,13 +13,14 @@ const UserProfilePage = () => {
     phone: "",
     cpf: "",
     bio: "",
-    avatar: null,
+    avatar: null, // dataURL
   });
 
+  // Carrega dados do authService + foto salva no localStorage (se houver)
   useEffect(() => {
     const loadUserData = async () => {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       if (authService.checkAuth()) {
         const currentUser = authService.getCurrentUser();
@@ -34,6 +35,12 @@ const UserProfilePage = () => {
         });
       }
 
+      // Se existir foto do usuário no localStorage (upload anterior), usa como prioridade
+      const savedPhoto = localStorage.getItem("navis_user_photo");
+      if (savedPhoto) {
+        setFormData((prev) => ({ ...prev, avatar: savedPhoto }));
+      }
+
       setIsLoading(false);
     };
 
@@ -45,22 +52,55 @@ const UserProfilePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Salva a imagem como dataURL e armazena no localStorage
   const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, avatar: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    // opcional: limitar tamanho (ex: 2MB)
+    const maxMB = 3;
+    if (file.size > maxMB * 1024 * 1024) {
+      alert(`Imagem muito grande. Tente um arquivo menor que ${maxMB}MB.`);
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Image = reader.result;
+      setFormData((prev) => ({ ...prev, avatar: base64Image }));
+      localStorage.setItem("navis_user_photo", base64Image);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveProfile = () => {
-    console.log("Profile saved:", formData);
-    setSuccessMessage("Atualização salva com sucesso!");
+    const updatedUser = {
+      ...user,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      cpf: formData.cpf,
+      bio: formData.bio,
+      avatar: formData.avatar,
+    };
 
-    // Remove a mensagem depois de 3 segundos
+    // se authService tiver um método para atualizar localmente:
+    if (authService.updateCurrentUser) {
+      try {
+        authService.updateCurrentUser(updatedUser);
+      } catch (err) {
+        console.warn("authService.updateCurrentUser não existe ou falhou", err);
+      }
+    }
+
+    // também armazena em localStorage (redundante mas seguro)
+    try {
+      localStorage.setItem("navis_current_user", JSON.stringify(updatedUser));
+    } catch (err) {
+      console.warn("Não foi possível salvar usuário no localStorage", err);
+    }
+
+    setSuccessMessage("Atualização salva com sucesso!");
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
@@ -87,10 +127,13 @@ const UserProfilePage = () => {
               ) : (
                 <div className="avatar-placeholder">Upload Foto</div>
               )}
+
+              {/* input de arquivo */}
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
+                aria-label="Upload da foto de perfil"
               />
             </div>
 
@@ -104,25 +147,19 @@ const UserProfilePage = () => {
           <section className="profile-tabs">
             <div className="tab-navigation">
               <button
-                className={`tab-button ${
-                  activeTab === "profile" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "profile" ? "active" : ""}`}
                 onClick={() => setActiveTab("profile")}
               >
                 Perfil
               </button>
               <button
-                className={`tab-button ${
-                  activeTab === "settings" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "settings" ? "active" : ""}`}
                 onClick={() => setActiveTab("settings")}
               >
                 Configurações
               </button>
               <button
-                className={`tab-button ${
-                  activeTab === "security" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "security" ? "active" : ""}`}
                 onClick={() => setActiveTab("security")}
               >
                 Segurança
@@ -138,7 +175,7 @@ const UserProfilePage = () => {
                   <h2 className="h2">Informações Pessoais</h2>
                 </div>
 
-                <form className="profile-form">
+                <form className="profile-form" onSubmit={(e) => e.preventDefault()}>
                   <div className="form-grid">
                     <div className="form-group">
                       <label>Nome completo</label>
@@ -204,19 +241,13 @@ const UserProfilePage = () => {
                     </div>
                   </div>
 
-                  {successMessage && (
-                    <div className="success-message">{successMessage}</div>
-                  )}
+                  {successMessage && <div className="success-message">{successMessage}</div>}
 
                   <div className="form-actions">
                     <button type="button" className="cancel-button">
                       Cancelar
                     </button>
-                    <button
-                      type="button"
-                      className="save-button"
-                      onClick={handleSaveProfile}
-                    >
+                    <button type="button" className="save-button" onClick={handleSaveProfile}>
                       Salvar
                     </button>
                   </div>
@@ -224,6 +255,7 @@ const UserProfilePage = () => {
               </div>
             )}
 
+            {/* settings / security... (mantém igual ao seu código original) */}
             {activeTab === "settings" && (
               <div className="tab-content">
                 <div className="content-header">
@@ -258,13 +290,12 @@ const UserProfilePage = () => {
                     </div>
                   </div>
 
-                  {/* 🔹 Botão de sair da conta */}
                   <div className="logout-section">
                     <button
                       className="logout-button"
                       onClick={() => {
                         authService.logout();
-                        window.location.href = "/"; // Redireciona para login
+                        window.location.href = "/";
                       }}
                     >
                       Sair da conta
@@ -287,9 +318,7 @@ const UserProfilePage = () => {
                       <div className="security-info">
                         <p>Atualize sua senha para manter sua conta segura.</p>
                       </div>
-                      <button className="security-button">
-                        Alterar senha
-                      </button>
+                      <button className="security-button">Alterar senha</button>
                     </div>
                   </div>
                   <div className="security-section">
