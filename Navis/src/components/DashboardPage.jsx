@@ -28,6 +28,17 @@ function RecenterMap({ lat, lng }) {
   return null;
 }
 
+// Componente para obter instância válida do mapa via useMap
+function MapHandler({ onMapReady }) {
+  const mapInstance = useMap();
+  useEffect(() => {
+    if (mapInstance && onMapReady) {
+      onMapReady(mapInstance);
+    }
+  }, [mapInstance, onMapReady]);
+  return null;
+}
+
 const DashboardPage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,12 +47,29 @@ const DashboardPage = () => {
   const [destinationAddress, setDestinationAddress] = useState("");
   const [map, setMap] = useState(null);
   const [routing, setRouting] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
     const isAuth = authService.checkAuth();
     if (isAuth) setUser(authService.getCurrentUser());
     setLoading(false);
   }, []);
+
+  // useEffect para depuração e verificação extra do mapa
+  useEffect(() => {
+    if (map && !mapLoaded) {
+      const checkMapReady = () => {
+        if (map._loaded) {
+          setMapLoaded(true);
+          console.log("Mapa carregado via useEffect");
+        } else {
+          setTimeout(checkMapReady, 500);
+        }
+      };
+      checkMapReady();
+    }
+    console.log("Estado atual: MapLoaded =", mapLoaded, "Map =", map);
+  }, [map, mapLoaded]);
 
   const getCurrentPosition = useCallback(() => {
     if (!navigator.geolocation) {
@@ -59,32 +87,91 @@ const DashboardPage = () => {
     );
   }, []);
 
-  const calculateRoute = useCallback(() => {
+  // Função para geocodificação
+  const geocodeAddress = async (address) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await response.json();
+      if (data.length > 0) {
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      } else {
+        throw new Error("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro na geocodificação:", error);
+      return null;
+    }
+  };
+
+  // Função para definir mapa via MapHandler
+  const handleMapReady = useCallback((mapInstance) => {
+    setMap(mapInstance);
+    setMapLoaded(true);
+    console.log("Mapa pronto via MapHandler:", mapInstance);
+  }, []);
+
+  // Nova função para limpar rota
+  const clearRoute = useCallback(() => {
+    if (routing) {
+      routing.remove();
+      setRouting(null);
+      console.log("Rota limpa");
+    }
+  }, [routing]);
+
+  const calculateRoute = useCallback(async () => {
     if (!originAddress || !destinationAddress) {
       alert("Por favor, preencha origem e destino.");
       return;
     }
 
-    const parseCoords = (str) => str.split(",").map(Number);
-    const [lat1, lng1] = parseCoords(originAddress);
-    const [lat2, lng2] = parseCoords(destinationAddress);
+    if (!map || typeof map.getSize !== 'function') {
+      alert("Mapa ainda não carregado ou inválido. Aguarde e tente novamente.");
+      console.log("Erro: Map inválido. Map:", map);
+      return;
+    }
 
-    if (!map) return;
+    let originCoords, destCoords;
 
-    if (routing) routing.remove();
+    try {
+      if (originAddress.includes(",") && !isNaN(originAddress.split(",")[0].trim())) {
+        const [lat, lng] = originAddress.split(",").map(Number);
+        originCoords = { lat, lng };
+      } else {
+        originCoords = await geocodeAddress(originAddress);
+      }
 
-    const control = L.Routing.control({
-      waypoints: [L.latLng(lat1, lng1), L.latLng(lat2, lng2)],
-      lineOptions: { styles: [{ color: "#00c3ff", weight: 6 }] },
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: true,
-      showAlternatives: false,
-      createMarker: (i, wp) =>
-        L.marker(wp.latLng, { icon: i === 0 ? originIcon : destinationIcon }),
-    }).addTo(map);
+      if (destinationAddress.includes(",") && !isNaN(destinationAddress.split(",")[0].trim())) {
+        const [lat, lng] = destinationAddress.split(",").map(Number);
+        destCoords = { lat, lng };
+      } else {
+        destCoords = await geocodeAddress(destinationAddress);
+      }
 
-    setRouting(control);
+      if (!originCoords || !destCoords) {
+        throw new Error("Coordenadas inválidas ou geocodificação falhou");
+      }
+
+      console.log("Rota calculada com sucesso:", originCoords, destCoords);
+
+      if (routing) routing.remove();
+
+      const control = L.Routing.control({
+        waypoints: [L.latLng(originCoords.lat, originCoords.lng), L.latLng(destCoords.lat, destCoords.lng)],
+        lineOptions: { styles: [{ color: "#00c3ff", weight: 6 }] },
+        addWaypoints: false,
+        draggableWaypoints: false,
+        fitSelectedRoutes: true,
+        showAlternatives: false,
+        createMarker: (i, wp) =>
+          L.marker(wp.latLng, { icon: i === 0 ? originIcon : destinationIcon }),
+      }).addTo(map);
+
+      setRouting(control);
+    } catch (error) {
+      console.error("Erro na rota:", error);
+      alert(`Erro ao calcular rota: ${error.message}`);
+    }
   }, [originAddress, destinationAddress, map, routing]);
 
   if (loading) return <div className="loading">Carregando...</div>;
@@ -92,17 +179,16 @@ const DashboardPage = () => {
   return (
     <div className="dashboard-wrapper">
       <div className="dashboard-container">
-        {/* Mapa */}
         <MapContainer
           center={currentLocation || [-23.5505, -46.6333]}
           zoom={15}
-          whenCreated={setMap}
           className="map"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MapHandler onMapReady={handleMapReady} />
           {currentLocation && (
             <>
               <Marker
@@ -114,7 +200,6 @@ const DashboardPage = () => {
           )}
         </MapContainer>
 
-        {/* Inputs */}
         <div className="search-container">
           <div className="search-box">
             <input
@@ -132,9 +217,22 @@ const DashboardPage = () => {
               onChange={(e) => setDestinationAddress(e.target.value)}
             />
           </div>
+          <button 
+            onClick={calculateRoute} 
+            className="calculate-btn" 
+            disabled={!mapLoaded}
+          >
+            Calcular Rota
+          </button>
+          <button 
+            onClick={clearRoute} 
+            className="clear-btn" 
+            disabled={!routing}
+          >
+            Limpar Rota
+          </button>
         </div>
 
-        {/* Alertas */}
         <div className="alerts">
           <div className="alert-card obra">
             🚧 Obra na Av. Principal – Iluminação reduzida.
@@ -144,7 +242,6 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Rotas Sugeridas */}
         <div className="routes-card">
           <h3>Rotas Sugeridas</h3>
           <div className="route-item segura">
@@ -170,7 +267,6 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="bottom-bar">
           <button className="icon-btn">🏠</button>
           <button className="icon-btn alerta">🚨</button>
