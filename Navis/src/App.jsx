@@ -5,6 +5,7 @@ import UserProfilePage from "./components/UserProfilePage";
 import LocationPermissionPage from "./components/LocationPermissionPage";
 import NavyPage from "./components/NavyPage";
 import HelpChat from "./components/ChatNavy";
+import SOSPage from "./components/SOSPage";
 import authService from "./services/authService";
 import "./App.css";
 
@@ -12,14 +13,18 @@ function App() {
   const [currentPage, setCurrentPage] = useState("login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
+  // Verifica autenticação
   useEffect(() => {
     const checkAuth = () => {
       const authenticated = authService.checkAuth();
       setIsAuthenticated(authenticated);
 
       if (authenticated) {
-        const locationPermission = localStorage.getItem("navis_location_permission");
+        const locationPermission = localStorage.getItem(
+          "navis_location_permission"
+        );
         if (locationPermission) {
           setCurrentPage("dashboard");
         } else {
@@ -33,10 +38,17 @@ function App() {
     checkAuth();
   }, []);
 
+  // Carrega imagem de perfil salva
+  useEffect(() => {
+    const savedImage = localStorage.getItem("navis_user_photo");
+    if (savedImage) setProfileImage(savedImage);
+  }, []);
+
   const handleResetApp = () => {
     localStorage.clear();
     setCurrentPage("login");
     setIsAuthenticated(false);
+    setProfileImage(null);
   };
 
   const renderPage = () => {
@@ -53,14 +65,22 @@ function App() {
         );
       case "dashboard":
         return (
-          <DashboardPage onNavigateToProfile={() => setCurrentPage("profile")} />
+          <DashboardPage
+            onNavigateToSOS={() => setCurrentPage("sos")}
+            onNavigateToProfile={() => setCurrentPage("profile")}
+          />
         );
       case "profile":
         return (
-          <UserProfilePage onNavigateToDashboard={() => setCurrentPage("dashboard")} />
+          <UserProfilePage
+            onNavigateToDashboard={() => setCurrentPage("dashboard")}
+            onProfileImageUpdate={(image) => setProfileImage(image)}
+          />
         );
       case "Navy":
         return <NavyPage />;
+      case "sos":
+        return <SOSPage onNavigateBack={() => setCurrentPage("dashboard")} />;
       default:
         return <LoginPage onLoginSuccess={() => setCurrentPage("location")} />;
     }
@@ -68,18 +88,20 @@ function App() {
 
   return (
     <>
-      {currentPage !== "login" && (
+      {currentPage !== "login" && currentPage !== "sos" && (
         <nav className="app-navigation">
           <div className="voltal">
             <button
-              onClick={() => setCurrentPage("login")}
+              onClick={() => {
+                setCurrentPage("login");
+                setIsMenuOpen(false); // fecha o menu ao clicar
+              }}
               className="back-button"
             >
               <img src="/left-arrow (1).png" alt="" /> Login
             </button>
           </div>
 
-          {/* Botão hamburguer */}
           <button
             className="hamburger-btn"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -88,24 +110,70 @@ function App() {
           </button>
 
           <div className={`nav-buttons ${isMenuOpen ? "open" : ""}`}>
-            <button onClick={() => setCurrentPage("location")} className="nav-button">
+            <button
+              onClick={() => {
+                setCurrentPage("location");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
               <img src="/location.png" alt="" /> Localização
             </button>
 
-            <button onClick={() => setCurrentPage("dashboard")} className="nav-button">
+            <button
+              onClick={() => {
+                setCurrentPage("dashboard");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
               <img src="/home.png" alt="" /> Home
             </button>
 
-            <button onClick={() => setCurrentPage("community")} className="nav-button">
+            <button
+              onClick={() => {
+                setCurrentPage("community");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
               <img src="/arrow.png" alt="" /> Navegantes
             </button>
 
-            <button onClick={() => setCurrentPage("Navy")} className="nav-button">
+            <button
+              onClick={() => {
+                setCurrentPage("Navy");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
               <img src="/Navy.png" alt="" /> Navy
             </button>
 
-            <button onClick={() => setCurrentPage("profile")} className="nav-button">
-              <img src="/user.png" alt="" /> Perfil
+            <button
+              onClick={() => {
+                setCurrentPage("profile");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
+              <img src="/growth (4).png" alt="Foto de perfil" />
+              Planos
+            </button>
+
+            <button
+              onClick={() => {
+                setCurrentPage("profile");
+                setIsMenuOpen(false);
+              }}
+              className="nav-button"
+            >
+              <img
+                src={profileImage || "/user.png"}
+                alt="Foto de perfil"
+                className="profile-icon"
+              />
+              Perfil
             </button>
           </div>
         </nav>
@@ -113,8 +181,9 @@ function App() {
 
       {renderPage()}
 
-      {/* Chatbot */}
-      {isAuthenticated && currentPage !== "login" && <HelpChat />}
+      {isAuthenticated && currentPage !== "login" && currentPage !== "sos" && (
+        <HelpChat />
+      )}
     </>
   );
 }
