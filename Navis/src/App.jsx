@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import DashboardPage from "./components/DashboardPage";
 import UserProfilePage from "./components/UserProfilePage";
@@ -55,6 +56,7 @@ function App() {
     switch (currentPage) {
       case "login":
         return <LoginPage onLoginSuccess={() => setCurrentPage("location")} />;
+
       case "location":
         return (
           <LocationPermissionPage
@@ -63,6 +65,7 @@ function App() {
             onNavigateToDashboard={() => setCurrentPage("dashboard")}
           />
         );
+
       case "dashboard":
         return (
           <DashboardPage
@@ -70,6 +73,7 @@ function App() {
             onNavigateToProfile={() => setCurrentPage("profile")}
           />
         );
+
       case "profile":
         return (
           <UserProfilePage
@@ -77,114 +81,127 @@ function App() {
             onProfileImageUpdate={(image) => setProfileImage(image)}
           />
         );
+
+      // 🔹 Atualizado para receber a função de retorno à Dashboard
       case "Navy":
-        return <NavyPage />;
+        return (
+          <NavyPage
+            onNavigateToDashboard={() => {
+              console.log("➡ Navegando para Dashboard...");
+              setCurrentPage("dashboard");
+            }}
+          />
+        );
+
       case "sos":
         return <SOSPage onNavigateBack={() => setCurrentPage("dashboard")} />;
+
       default:
         return <LoginPage onLoginSuccess={() => setCurrentPage("location")} />;
     }
   };
 
   return (
-    <>
-      {currentPage !== "login" && currentPage !== "sos" && (
-        <nav className="app-navigation">
-          <div className="voltal">
-            <button
-              onClick={() => {
-                setCurrentPage("login");
-                setIsMenuOpen(false); // fecha o menu ao clicar
-              }}
-              className="back-button"
-            >
-              <img src="/left-arrow (1).png" alt="" /> Login
-            </button>
-          </div>
-
-          <button
-            className="hamburger-btn"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            ☰
-          </button>
-
-          <div className={`nav-buttons ${isMenuOpen ? "open" : ""}`}>
-            <button
-              onClick={() => {
-                setCurrentPage("location");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
-            >
-              <img src="/location.png" alt="" /> Localização
-            </button>
+    <Router>
+      <>
+        {currentPage !== "login" && currentPage !== "sos" && (
+          <nav className="app-navigation">
+            <div className="voltal">
+              <button
+                onClick={() => {
+                  setCurrentPage("login");
+                  setIsMenuOpen(false);
+                }}
+                className="back-button"
+              >
+                <img src="/left-arrow (1).png" alt="" /> Login
+              </button>
+            </div>
 
             <button
-              onClick={() => {
-                setCurrentPage("dashboard");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
+              className="hamburger-btn"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              <img src="/home.png" alt="" /> Home
+              ☰
             </button>
 
-            <button
-              onClick={() => {
-                setCurrentPage("community");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
-            >
-              <img src="/arrow.png" alt="" /> Navegantes
-            </button>
+            <div className={`nav-buttons ${isMenuOpen ? "open" : ""}`}>
+              <button
+                onClick={() => {
+                  setCurrentPage("location");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img src="/location.png" alt="" /> Localização
+              </button>
 
-            <button
-              onClick={() => {
-                setCurrentPage("Navy");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
-            >
-              <img src="/Navy.png" alt="" /> Navy
-            </button>
+              <button
+                onClick={() => {
+                  setCurrentPage("dashboard");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img src="/home.png" alt="" /> Home
+              </button>
 
-            <button
-              onClick={() => {
-                setCurrentPage("profile");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
-            >
-              <img src="/growth (4).png" alt="Foto de perfil" />
-              Planos
-            </button>
+              <button
+                onClick={() => {
+                  setCurrentPage("community");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img src="/arrow.png" alt="" /> Navegantes
+              </button>
 
-            <button
-              onClick={() => {
-                setCurrentPage("profile");
-                setIsMenuOpen(false);
-              }}
-              className="nav-button"
-            >
-              <img
-                src={profileImage || "/user.png"}
-                alt="Foto de perfil"
-                className="profile-icon"
-              />
-              Perfil
-            </button>
-          </div>
-        </nav>
-      )}
+              <button
+                onClick={() => {
+                  setCurrentPage("Navy");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img src="/Navy.png" alt="" /> Navy
+              </button>
 
-      {renderPage()}
+              <button
+                onClick={() => {
+                  setCurrentPage("profile");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img src="/growth (4).png" alt="Foto de perfil" />
+                Planos
+              </button>
 
-      {isAuthenticated && currentPage !== "login" && currentPage !== "sos" && (
-        <HelpChat />
-      )}
-    </>
+              <button
+                onClick={() => {
+                  setCurrentPage("profile");
+                  setIsMenuOpen(false);
+                }}
+                className="nav-button"
+              >
+                <img
+                  src={profileImage || "/user.png"}
+                  alt="Foto de perfil"
+                  className="profile-icon"
+                />
+                Perfil
+              </button>
+            </div>
+          </nav>
+        )}
+
+        {renderPage()}
+
+        {isAuthenticated && currentPage !== "login" && currentPage !== "sos" && (
+          <HelpChat />
+        )}
+      </>
+    </Router>
   );
 }
 

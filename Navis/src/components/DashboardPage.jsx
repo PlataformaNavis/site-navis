@@ -20,7 +20,6 @@ const destinationIcon = new L.DivIcon({
   iconSize: [30, 30],
 });
 
-// Recentraliza mapa
 function RecenterMap({ lat, lng }) {
   const map = useMap();
   useEffect(() => {
@@ -29,7 +28,6 @@ function RecenterMap({ lat, lng }) {
   return null;
 }
 
-// Captura instância do mapa
 function MapHandler({ onMapReady }) {
   const mapInstance = useMap();
   useEffect(() => {
@@ -49,8 +47,7 @@ const DashboardPage = ({ onNavigateToSOS }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showLocationButton, setShowLocationButton] = useState(false);
   const [showSosButton, setShowSosButton] = useState(true);
-
-  const sosTimeout = useRef(null); // Ref para controlar timeout do SOS
+  const sosTimeout = useRef(null);
 
   useEffect(() => {
     const isAuth = authService.checkAuth();
@@ -175,12 +172,65 @@ const DashboardPage = ({ onNavigateToSOS }) => {
     }
   }, [originAddress, destinationAddress, map, routing]);
 
-  // ==== BOTÃO SOS COM HOLD 3 SEGUNDOS ====
+  // Salvar rota
+  const handleSaveRoute = useCallback(() => {
+    if (!originAddress || !destinationAddress) {
+      alert("Preencha origem e destino antes de salvar a rota!");
+      return;
+    }
+
+    const savedRoutes = JSON.parse(
+      localStorage.getItem("saved_routes") || "[]"
+    );
+    const newRoute = {
+      id: Date.now(),
+      origin: originAddress,
+      destination: destinationAddress,
+      date: new Date().toLocaleString("pt-BR"),
+    };
+
+    localStorage.setItem(
+      "saved_routes",
+      JSON.stringify([...savedRoutes, newRoute])
+    );
+
+    alert(" Rota salva com sucesso!");
+  }, [originAddress, destinationAddress]);
+
+  // 🧭 Carregar rota salva e calcular automaticamente ao abrir
+  useEffect(() => {
+    const raw = localStorage.getItem("selected_route");
+    if (!raw) return;
+
+    try {
+      const route = JSON.parse(raw);
+      if (!route.origin || !route.destination) return;
+
+      console.log("➡ Rota recebida:", route);
+
+      setOriginAddress(route.origin);
+      setDestinationAddress(route.destination);
+
+      // espera o mapa carregar antes de calcular
+      const waitForMap = setInterval(() => {
+        if (map && mapLoaded) {
+          clearInterval(waitForMap);
+          console.log("🗺️ Mapa pronto — calculando rota...");
+          calculateRoute();
+          localStorage.removeItem("selected_route");
+        }
+      }, 400);
+    } catch (err) {
+      console.error("Erro ao processar selected_route:", err);
+    }
+  }, [map, mapLoaded, calculateRoute]);
+
+  // botão sos de 3s
   const handleSosPressStart = () => {
     sosTimeout.current = setTimeout(() => {
       setShowSosButton(false);
       if (onNavigateToSOS) onNavigateToSOS();
-    }, 3000); // 3 segundos
+    }, 3000);
   };
 
   const handleSosPressEnd = () => {
@@ -208,7 +258,10 @@ const DashboardPage = ({ onNavigateToSOS }) => {
                 position={[currentLocation.lat, currentLocation.lng]}
                 icon={originIcon}
               />
-              <RecenterMap lat={currentLocation.lat} lng={currentLocation.lng} />
+              <RecenterMap
+                lat={currentLocation.lat}
+                lng={currentLocation.lng}
+              />
             </>
           )}
         </MapContainer>
@@ -223,7 +276,6 @@ const DashboardPage = ({ onNavigateToSOS }) => {
               onChange={(e) => setOriginAddress(e.target.value)}
               onFocus={() => setShowLocationButton(true)}
             />
-
             {showLocationButton && (
               <button
                 className="use-location-btn"
@@ -254,7 +306,19 @@ const DashboardPage = ({ onNavigateToSOS }) => {
               Calcular Rota
             </button>
 
-            <button onClick={clearRoute} className="clear-btn" disabled={!routing}>
+            <button
+              onClick={handleSaveRoute}
+              className="save-btn"
+              disabled={!destinationAddress}
+            >
+              Salvar Rota
+            </button>
+
+            <button
+              onClick={clearRoute}
+              className="clear-btn"
+              disabled={!routing}
+            >
               Limpar Rota
             </button>
           </div>
@@ -269,7 +333,7 @@ const DashboardPage = ({ onNavigateToSOS }) => {
               onMouseUp={handleSosPressEnd}
               onMouseLeave={handleSosPressEnd}
             >
-            <img className="button-sos" src="/alarm (1).png" alt="" />
+              <img className="button-sos" src="/alarm (1).png" alt="" />
             </button>
           )}
         </div>
