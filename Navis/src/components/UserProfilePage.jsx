@@ -14,29 +14,40 @@ const UserProfilePage = ({ onAvatarChange }) => {
     email: "",
     phone: "",
     cpf: "",
+    emergencyPhone: "",
+    sosMessage: "",
     bio: "",
     avatar: null,
   });
 
-  // Carrega dados do usuário e imagem salva
+  // 🔹 Carrega dados do usuário e imagem salva
   useEffect(() => {
     const loadUserData = async () => {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       if (authService.checkAuth()) {
-        const currentUser = authService.getCurrentUser();
+        const currentUser = authService.getCurrentUser() || {};
         const savedPhoto = localStorage.getItem("navis_user_photo");
+        const savedUserData = JSON.parse(
+          localStorage.getItem("navis_current_user") || "{}"
+        );
+
+        const mergedData = {
+          name: savedUserData.name || currentUser.name || "Usuário NAVIS",
+          email: savedUserData.email || currentUser.email || "user@navis.com",
+          phone: savedUserData.phone || currentUser.phone || "",
+          cpf: savedUserData.cpf || currentUser.cpf || "",
+          emergencyPhone: savedUserData.emergencyPhone || "",
+          sosMessage:
+            savedUserData.sosMessage ||
+            "Preciso de ajuda! Aqui está minha localização.",
+          bio: savedUserData.bio || currentUser.bio || "",
+          avatar: savedPhoto || currentUser.avatar || null,
+        };
 
         setUser(currentUser);
-        setFormData({
-          name: currentUser?.name || "Usuário NAVIS",
-          email: currentUser?.email || "user@navis.com",
-          phone: currentUser?.phone || "",
-          cpf: currentUser?.cpf || "",
-          bio: currentUser?.bio || "",
-          avatar: savedPhoto || currentUser?.avatar || null,
-        });
+        setFormData(mergedData);
       }
 
       setIsLoading(false);
@@ -45,13 +56,13 @@ const UserProfilePage = ({ onAvatarChange }) => {
     loadUserData();
   }, []);
 
-  // Atualiza inputs
+  // 🔹 Atualiza inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Upload de imagem
+  // 🔹 Upload de imagem
   const handleAvatarChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -68,28 +79,31 @@ const UserProfilePage = ({ onAvatarChange }) => {
       setFormData((prev) => ({ ...prev, avatar: base64Image }));
       localStorage.setItem("navis_user_photo", base64Image);
 
-      // Chama a prop do App.jsx para atualizar o ícone do perfil
-      if (onProfileImageUpdate) onProfileImageUpdate(base64Image);
-
+      if (onAvatarChange) onAvatarChange(base64Image);
       setShowAvatarMenu(false);
     };
     reader.readAsDataURL(file);
   };
 
-  // Salvar alterações
+  // 🔹 Salvar alterações
   const handleSaveProfile = () => {
     const updatedUser = { ...user, ...formData };
-    if (authService.updateCurrentUser) {
-      try {
-        authService.updateCurrentUser(updatedUser);
-      } catch (err) {
-        console.warn("authService.updateCurrentUser falhou", err);
-      }
-    }
 
-    localStorage.setItem("navis_current_user", JSON.stringify(updatedUser));
-    setSuccessMessage("Atualização salva com sucesso!");
-    setTimeout(() => setSuccessMessage(""), 3000);
+    try {
+      localStorage.setItem("navis_current_user", JSON.stringify(updatedUser));
+      if (formData.avatar) {
+        localStorage.setItem("navis_user_photo", formData.avatar);
+      }
+      if (authService.updateCurrentUser) {
+        authService.updateCurrentUser(updatedUser);
+      }
+
+      setSuccessMessage("Atualização salva com sucesso!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      console.error("Erro ao salvar dados:", err);
+      alert("Erro ao salvar. Tente novamente.");
+    }
   };
 
   if (isLoading) {
@@ -106,7 +120,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
   return (
     <div className="profile-page">
       <main className="profile-main">
-        {/* Cabeçalho fixo com avatar e info */}
+        {/* Cabeçalho com avatar */}
         <section className="profile-header-section">
           <div
             className="profile-avatar"
@@ -141,7 +155,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
             </div>
           )}
 
-          {/* Modal de visualização da imagem */}
+          {/* Modal de visualização */}
           {showAvatarModal && (
             <div
               className="avatar-modal"
@@ -165,7 +179,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
           </div>
         </section>
 
-        {/* Tabs fixas */}
+        {/* Tabs */}
         <section className="profile-tabs">
           <div className="tab-navigation">
             <button
@@ -201,7 +215,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
           </div>
         </section>
 
-        {/* PERFIL */}
+        {/* 🔹 PERFIL */}
         {activeTab === "profile" && (
           <div className="profile-container">
             <section className="profile-content">
@@ -289,7 +303,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
                       <input
                         type="tel"
                         name="emergencyPhone"
-                        value={formData.emergencyPhone || ""}
+                        value={formData.emergencyPhone}
                         onChange={(e) => {
                           let val = e.target.value.replace(/\D/g, "");
                           if (val.length > 11) val = val.slice(0, 11);
@@ -306,13 +320,13 @@ const UserProfilePage = ({ onAvatarChange }) => {
                       />
                     </div>
 
-                    {/* Frase para SOS */}
+                    {/* Frase SOS */}
                     <div className="form-group">
                       <label>Frase para SOS</label>
                       <input
                         type="text"
                         name="sosMessage"
-                        value={formData.sosMessage || ""}
+                        value={formData.sosMessage}
                         onChange={handleInputChange}
                         placeholder="Preciso de ajuda! Aqui está minha localização."
                         required
@@ -332,7 +346,11 @@ const UserProfilePage = ({ onAvatarChange }) => {
                     >
                       Salvar
                     </button>
-                    <button type="button" className="cancel-button">
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => window.location.reload()}
+                    >
                       Cancelar
                     </button>
                   </div>
@@ -464,26 +482,31 @@ const UserProfilePage = ({ onAvatarChange }) => {
                 <img src="/roi.png" alt="" />
               </h2>
 
-              <p className="settings-subtitle">
-                Seu plano atual é o <strong>Start</strong>
-              </p>
-
               <div className="plan-card">
                 <h3>
-                  Navis Start <br />
-                  <img className="plan-logo" src="/1.png" alt="" />
+                  Horizon <br />
+                  <img className="plan-logo" src="/2.png" alt="" />
                 </h3>
 
                 <ul className="plan-benefits">
-                  <li>✅ Acesso básico à plataforma</li>
-                  <li>✅ Perfil público personalizável</li>
-                  <li>✅ Upload de imagem de perfil</li>
+                  <li>Acesso ao mapa e rotas;</li>
+                  <li>
+                    Visualização em tempo real de trajetos e pontos de
+                    interesse;
+                  </li>
+                  <li>Rotas ilimitadas salvas;</li>
+                  <li>
+                    Painel analítico com relatórios semanais e aprendizado do
+                    Navy;
+                  </li>
+                  <li>Sem anúncios;</li>
+
+                  <li>Comunidade Navis (acesso completo)</li>
                 </ul>
-                <p className="plan-price">Gratuito</p>
+                <p className="plan-price">R$ 24,90</p>
               </div>
 
               <div className="plan-footer">
-                <p>Quer mais funcionalidades?</p>
                 <button
                   className="upgrade-button-2"
                   onClick={() => alert("Em breve: Planos Navis Pro e Plus!")}

@@ -47,7 +47,23 @@ const DashboardPage = ({ onNavigateToSOS }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showLocationButton, setShowLocationButton] = useState(false);
   const [showSosButton, setShowSosButton] = useState(true);
+  const [showActionButtons, setShowActionButtons] = useState(false);
   const sosTimeout = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  // Fecha botões ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowActionButtons(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const isAuth = authService.checkAuth();
@@ -172,7 +188,6 @@ const DashboardPage = ({ onNavigateToSOS }) => {
     }
   }, [originAddress, destinationAddress, map, routing]);
 
-  // Salvar rota
   const handleSaveRoute = useCallback(() => {
     if (!originAddress || !destinationAddress) {
       alert("Preencha origem e destino antes de salvar a rota!");
@@ -197,7 +212,6 @@ const DashboardPage = ({ onNavigateToSOS }) => {
     alert(" Rota salva com sucesso!");
   }, [originAddress, destinationAddress]);
 
-  // 🧭 Carregar rota salva e calcular automaticamente ao abrir
   useEffect(() => {
     const raw = localStorage.getItem("selected_route");
     if (!raw) return;
@@ -211,7 +225,6 @@ const DashboardPage = ({ onNavigateToSOS }) => {
       setOriginAddress(route.origin);
       setDestinationAddress(route.destination);
 
-      // espera o mapa carregar antes de calcular
       const waitForMap = setInterval(() => {
         if (map && mapLoaded) {
           clearInterval(waitForMap);
@@ -267,14 +280,17 @@ const DashboardPage = ({ onNavigateToSOS }) => {
         </MapContainer>
 
         {/* Pesquisa */}
-        <div className="search-container">
+        <div className="search-container" ref={searchContainerRef}>
           <div className="search-box">
             <input
               type="text"
               placeholder="Ponto de partida"
               value={originAddress}
               onChange={(e) => setOriginAddress(e.target.value)}
-              onFocus={() => setShowLocationButton(true)}
+              onFocus={() => {
+                setShowLocationButton(true);
+                setShowActionButtons(false);
+              }}
             />
             {showLocationButton && (
               <button
@@ -293,35 +309,40 @@ const DashboardPage = ({ onNavigateToSOS }) => {
               placeholder="Para onde você vai?"
               value={destinationAddress}
               onChange={(e) => setDestinationAddress(e.target.value)}
-              onFocus={() => setShowLocationButton(false)}
+              onFocus={() => {
+                setShowActionButtons(true);
+                setShowLocationButton(false);
+              }}
             />
           </div>
 
-          <div className="button-group">
-            <button
-              onClick={calculateRoute}
-              className="calculate-btn"
-              disabled={!mapLoaded}
-            >
-              Calcular Rota
-            </button>
+          {showActionButtons && (
+            <div className="button-group">
+              <button
+                onClick={calculateRoute}
+                className="calculate-btn"
+                disabled={!mapLoaded}
+              >
+                Calcular Rota
+              </button>
 
-            <button
-              onClick={handleSaveRoute}
-              className="save-btn"
-              disabled={!destinationAddress}
-            >
-              Salvar Rota
-            </button>
+              <button
+                onClick={handleSaveRoute}
+                className="save-btn"
+                disabled={!destinationAddress}
+              >
+                Salvar Rota
+              </button>
 
-            <button
-              onClick={clearRoute}
-              className="clear-btn"
-              disabled={!routing}
-            >
-              Limpar Rota
-            </button>
-          </div>
+              <button
+                onClick={clearRoute}
+                className="clear-btn"
+                disabled={!routing}
+              >
+                Limpar Rota
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Barra inferior - SOS */}

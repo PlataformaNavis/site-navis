@@ -121,14 +121,9 @@ button:focus {
 }
 
 .button-group button {
-  height: 38px;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  padding: 0 15px;
+  height: 36px;
+  padding: 3px 14px;
+  font-size: 18px;
   border: none;
   margin-top: 10px;
 }
@@ -423,15 +418,16 @@ button:focus {
   }
 
   .button-group {
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 6px;
   }
 
   .calculate-btn,
   .save-btn,
   .clear-btn {
-    width: 80%;
-    font-size: 14px;
+    width: 70%;
+    font-size: 12.5px;
+    padding: 7px 9px;
   }
 
   .use-location-btn {
@@ -468,7 +464,6 @@ button:focus {
   }
 }
 
-/* Até 400px */
 @media (max-width: 400px) {
   .dashboard-container {
     height: 90vh;
@@ -508,5 +503,13 @@ button:focus {
     backdrop-filter: blur(4px);
     z-index: 3000;
     opacity: 0.96;
+  }
+
+  .calculate-btn,
+  .save-btn,
+  .clear-btn {
+    width: 85%;
+    font-size: 12px;
+    padding: 6px 8px;
   }
 }
