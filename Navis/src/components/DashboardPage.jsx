@@ -14,10 +14,47 @@ const originIcon = new L.DivIcon({
   iconSize: [30, 30],
 });
 
+
+
 const destinationIcon = new L.DivIcon({
   className: "custom-marker destination-marker",
   html: `<div class="marker-circle destination"></div>`,
   iconSize: [30, 30],
+});
+
+const customFormatter = new L.Routing.Formatter({
+  language: 'pt',
+  units: 'metric',
+  instructionTemplate: (instruction) => {
+    const type = instruction.type;
+    const distance = instruction.distance ? ` em ${Math.round(instruction.distance)} m` : '';
+    switch (type) {
+      case 'Straight':
+        return `Siga em frente${distance}`;
+      case 'SlightRight':
+        return `Vire ligeiramente à direita${distance}`;
+      case 'Right':
+        return `Vire à direita${distance}`;
+      case 'SharpRight':
+        return `Vire fortemente à direita${distance}`;
+      case 'TurnAround':
+        return `Dê meia-volta${distance}`;
+      case 'SharpLeft':
+        return `Vire fortemente à esquerda${distance}`;
+      case 'Left':
+        return `Vire à esquerda${distance}`;
+      case 'SlightLeft':
+        return `Vire ligeiramente à esquerda${distance}`;
+      case 'WaypointReached':
+        return 'Destino alcançado';
+      case 'Roundabout':
+        return `Entre na rotatória${distance}`;
+      case 'DestinationReached':
+        return 'Você chegou ao destino';
+      default:
+        return instruction.text || 'Continue';
+    }
+  }
 });
 
 function RecenterMap({ lat, lng }) {
@@ -177,6 +214,8 @@ const DashboardPage = ({ onNavigateToSOS }) => {
         draggableWaypoints: false,
         fitSelectedRoutes: true,
         showAlternatives: false,
+        language: "pt-BR",
+        formatter: customFormatter,
         createMarker: (i, wp) =>
           L.marker(wp.latLng, { icon: i === 0 ? originIcon : destinationIcon }),
       }).addTo(map);
