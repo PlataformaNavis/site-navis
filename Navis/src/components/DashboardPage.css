@@ -25,7 +25,6 @@ body {
 input:focus,
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(19, 37, 180, 0.2);
 }
 
 /* layout principal */
@@ -73,7 +72,7 @@ button:focus {
 .search-box input {
   width: 100%;
   height: 40px;
-  border: 1.5px solid var(--azul);
+  border: 2px solid var(--azul);
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 15px;
@@ -83,12 +82,8 @@ button:focus {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.search-box input::placeholder {
-  color: #888;
-}
-
-.search-box input:focus {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.search-box input:hover {
+   border: 2px solid var(--azul);
 }
 
 /* use location */
@@ -225,7 +220,7 @@ button:focus {
 .bottom-bar {
   position: absolute;
   bottom: 15px;
-  left: 10%;
+  left: 20%;
   transform: translateX(-50%);
   display: flex;
   justify-content: space-around;

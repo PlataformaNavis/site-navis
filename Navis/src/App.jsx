@@ -8,6 +8,7 @@ import NavyPage from "./components/NavyPage";
 import HelpChat from "./components/ChatNavy";
 import SOSPage from "./components/SOSPage";
 import PlansPage from "./components/PlansPage";
+import NavegantesPage from "./components/NavegantesPage";
 import authService from "./services/authService";
 import "./App.css";
 
@@ -17,16 +18,14 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
 
-  // Verifica autenticação
+  // 🔐 Verifica autenticação
   useEffect(() => {
     const checkAuth = () => {
       const authenticated = authService.checkAuth();
       setIsAuthenticated(authenticated);
 
       if (authenticated) {
-        const locationPermission = localStorage.getItem(
-          "navis_location_permission"
-        );
+        const locationPermission = localStorage.getItem("navis_location_permission");
         if (locationPermission) {
           setCurrentPage("dashboard");
         } else {
@@ -40,7 +39,7 @@ function App() {
     checkAuth();
   }, []);
 
-  // Carrega imagem de perfil salva
+  // 🖼️ Carrega imagem de perfil salva
   useEffect(() => {
     const savedImage = localStorage.getItem("navis_user_photo");
     if (savedImage) setProfileImage(savedImage);
@@ -53,6 +52,7 @@ function App() {
     setProfileImage(null);
   };
 
+  // 📄 Renderiza a página conforme o estado atual
   const renderPage = () => {
     switch (currentPage) {
       case "login":
@@ -86,13 +86,17 @@ function App() {
       case "plans":
         return <PlansPage onNavigateBack={() => setCurrentPage("dashboard")} />;
 
+      case "community":
+        return (
+          <NavegantesPage
+            onNavigateToDashboard={() => setCurrentPage("dashboard")}
+          />
+        );
+
       case "Navy":
         return (
           <NavyPage
-            onNavigateToDashboard={() => {
-              console.log("➡ Navegando para Dashboard...");
-              setCurrentPage("dashboard");
-            }}
+            onNavigateToDashboard={() => setCurrentPage("dashboard")}
           />
         );
 
@@ -134,9 +138,7 @@ function App() {
                   setCurrentPage("location");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "location" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "location" ? "active" : ""}`}
               >
                 <img src="/location.png" alt="" /> Localização
               </button>
@@ -146,9 +148,7 @@ function App() {
                   setCurrentPage("dashboard");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "dashboard" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "dashboard" ? "active" : ""}`}
               >
                 <img src="/home.png" alt="" /> Home
               </button>
@@ -158,9 +158,7 @@ function App() {
                   setCurrentPage("community");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "community" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "community" ? "active" : ""}`}
               >
                 <img src="/arrow.png" alt="" /> Navegantes
               </button>
@@ -170,9 +168,7 @@ function App() {
                   setCurrentPage("Navy");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "Navy" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "Navy" ? "active" : ""}`}
               >
                 <img src="/Navy.png" alt="" /> Navy
               </button>
@@ -182,12 +178,9 @@ function App() {
                   setCurrentPage("plans");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "plans" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "plans" ? "active" : ""}`}
               >
-                <img src="/growth (4).png" alt="Planos" />
-                Planos
+                <img src="/growth (4).png" alt="Planos" /> Planos
               </button>
 
               <button
@@ -195,9 +188,7 @@ function App() {
                   setCurrentPage("profile");
                   setIsMenuOpen(false);
                 }}
-                className={`nav-button ${
-                  currentPage === "profile" ? "active" : ""
-                }`}
+                className={`nav-button ${currentPage === "profile" ? "active" : ""}`}
               >
                 <img
                   src={profileImage || "/user.png"}

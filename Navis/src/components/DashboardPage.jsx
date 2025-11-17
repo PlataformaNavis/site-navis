@@ -55,6 +55,7 @@ const customFormatter = new L.Routing.Formatter({
         return instruction.text || 'Continue';
     }
   }
+// 544d5f18e30ef05e71e7350ca3edc04e27b9db49 não sei o que é isso (?)
 });
 
 function RecenterMap({ lat, lng }) {
