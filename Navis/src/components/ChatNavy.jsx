@@ -10,6 +10,23 @@ export default function HelpChat() {
   // 👇 referência para a área de mensagens
   const messagesEndRef = useRef(null);
 
+  async function getInput(e){
+    e.preventDefault();
+
+    try {
+      const res = await fetch('http://localhost:3000/api/navy', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: input })
+      });
+    const respostaNavy = await res.text();
+    console.log(respostaNavy);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   // 🔹 Respostas prontas
   const helpResponses = {
     1: `Problemas de login ou senha
@@ -174,6 +191,7 @@ Escolha uma das opções abaixo digitando o número correspondente:
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              
             />
             <button onClick={handleSend}>Enviar</button>
           </div>
