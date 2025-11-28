@@ -29,12 +29,13 @@ app.post('/api/navy', async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'text/plain')
+    var resposta = '';
 
     for await (const part of response) {
-      process.stdout.write(part.message.content);
+      // process.stdout.write(part.message.content);
+      resposta += part.message.content;
     }
-
-    res.end();
+    res.send(resposta);
   } catch (error) {
     console.log(`ERROR ${error}`);
     res.status(500).send('Erro na conexão');

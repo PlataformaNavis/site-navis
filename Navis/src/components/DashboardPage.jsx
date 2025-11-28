@@ -220,7 +220,10 @@ const DashboardPage = ({ onNavigateToSOS }) => {
         createMarker: (i, wp) =>
           L.marker(wp.latLng, { icon: i === 0 ? originIcon : destinationIcon }),
       }).addTo(map);
-
+      control.addWaypoints([
+        L.latLng(originCoords.lat, originCoords.lng),
+        L.latLng(destCoords.lat, destCoords.lng),
+      ]);
       setRouting(control);
     } catch (error) {
       console.error("Erro ao calcular rota:", error);

@@ -10,18 +10,23 @@ export default function HelpChat() {
   // 👇 referência para a área de mensagens
   const messagesEndRef = useRef(null);
 
-  async function getInput(e){
-    e.preventDefault();
+  async function getInput() {
 
     try {
+      const userMessage = { sender: "user", text: input };
+      setMessages((prev) => [...prev, userMessage]);
+      setInput("");
+
       const res = await fetch('http://localhost:3000/api/navy', {
         method: 'POST',
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input })
       });
-    const respostaNavy = await res.text();
-    console.log(respostaNavy);
       
+      const respostaNavy = await res.text();
+      // console.log(respostaNavy);
+
+      setMessages((prev) => [...prev, { sender: "bot", text: respostaNavy }]);
     } catch (error) {
       console.log(error);
     }
@@ -190,10 +195,10 @@ Escolha uma das opções abaixo digitando o número correspondente:
               placeholder="Digite o número da opção..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              
+              onKeyDown={(e) => e.key === "Enter" && getInput()}
+
             />
-            <button onClick={handleSend}>Enviar</button>
+            <button onClick={getInput}>Enviar</button>
           </div>
         </div>
       )}
