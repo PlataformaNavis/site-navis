@@ -18,7 +18,7 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
 
-  // 🔐 Verifica autenticação
+  //  Verifica autenticação
   useEffect(() => {
     const checkAuth = () => {
       const authenticated = authService.checkAuth();

@@ -80,7 +80,7 @@ const LoginPage = ({ onLoginSuccess }) => {
           <p className="login-subtitle">
             {isLoginMode
               ? "Bem-vindo! Faça login para continuar."
-              : "Crie sua conta para começar a usar a plataforma."}
+              : "Crie sua conta para iniciar seu trajeto como navegante."}
           </p>
         </div>
 

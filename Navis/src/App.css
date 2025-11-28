@@ -14,6 +14,40 @@
   --branco: #d9d9d9;
 }
 
+/* Remover contorno cinza ao clicar */
+/* Mantém foco por teclado se o navegador suportar :focus-visible. */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Para botões no Firefox */
+button::-moz-focus-inner {
+  border: 0;
+}
+
+/* Remove highlight em dispositivos móveis (tap) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* esconde foco visual apenas quando não for focus-visible */
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Remover aparências nativas que podem adicionar bordas internas */
+button,
+input[type="button"],
+input[type="submit"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

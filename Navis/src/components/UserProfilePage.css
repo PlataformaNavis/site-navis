@@ -70,6 +70,7 @@ button:active {
   gap: 20px;
   padding-top: 0;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .profile-avatar {
@@ -111,14 +112,15 @@ button:active {
 /* Menu de ações da imagem */
 .avatar-menu {
   position: absolute;
-  top: 130px;
+  left: 50%;
+  top: 150px;
   transform: translateX(-50%);
   background: var(--branco);
   border-radius: 10px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  width: 200px;
+  width: 220px;
   padding: 8px 0;
   z-index: 20;
 }
@@ -582,6 +584,25 @@ a :hover {
   .profile-avatar {
     width: 100px;
     height: 100px;
+  }
+
+  /* Avatar menu responsivo em telas pequenas */
+  .avatar-menu {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 12px;
+    left: auto;
+    top: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+  }
+
+  .avatar-menu button,
+  .avatar-menu label {
+    padding: 12px 16px;
+    font-size: 15px;
   }
   .profile-form .form-grid {
     grid-template-columns: 1fr;

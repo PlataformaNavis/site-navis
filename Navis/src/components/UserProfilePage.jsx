@@ -503,7 +503,7 @@ const UserProfilePage = ({ onAvatarChange }) => {
 
                   <li>Comunidade Navis (acesso completo)</li>
                 </ul>
-                <p className="plan-price">R$ 24,90</p>
+                <p className="plan-price">R$ 29,90</p>
               </div>
 
               <div className="plan-footer">

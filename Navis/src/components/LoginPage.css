@@ -199,6 +199,22 @@ input::-ms-reveal {
   box-shadow: 0 6px 15px rgba(19, 37, 180, 0.4);
 }
 
+/* Evita que a classe global .loading (definida em outro CSS) transforme
+   o botão de login em um grande quadrado. Aqui mantemos apenas o texto
+   "Processando..." com padding compacto. */
+.login-button.loading {
+  padding: 12px 20px;
+  font-size: 18px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: none;
+  color: #d9d9d9;
+}
+
 .mode-switch {
   display: flex;
   justify-content: center;
