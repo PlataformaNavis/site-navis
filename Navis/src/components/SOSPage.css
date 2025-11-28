@@ -1,0 +1,351 @@
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  --azul-claro: #3adbde;
+  --azul: #1325b4;
+  --laranja: #ff751f;
+  --vermelho: #eb4635;
+  --branco: #d9d9d9;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 150vw;
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+
+button:focus,
+button:active {
+  outline: none;
+  border: none;
+}
+
+/* Página SOS */
+.sos-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 700px;
+  background-color: var(--branco);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(33, 37, 41, 0.3);
+  padding: 1rem;
+}
+
+/* Status backgrounds */
+.sos-page.ready {
+  width: 60%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(33, 37, 41, 0.6);
+}
+
+.sos-page.sent {
+  width: 60%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(33, 37, 41, 0.6);
+}
+
+.sos-page.canceled {
+  width: 60%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(33, 37, 41, 0.6);
+}
+
+/* Cabeçalho */
+.sos-header {
+  width: 100%;
+  text-align: center;
+  background: linear-gradient(135deg, #eb4635, #ff751f);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sos-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.5em;
+  color: #f0f0f0;
+}
+
+.sos-logo img {
+  display: block;
+  width: 60px;
+  height: 60px;
+}
+
+/* Conteúdo principal */
+.sos-content {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sos-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+/* Caixa de aviso */
+.sos-warning-box {
+  background-color: #f1e4b7;
+  border: 1px solid #ffcf40;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sos-warning-box p {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Botão SOS */
+.sos-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.5em;
+}
+
+.sos-button {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--vermelho);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(235, 70, 53, 0.8);
+  transition: transform 0.2s, background-color 0.3s;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(235, 70, 53, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px 15px rgba(235, 70, 53, 0.3);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(235, 70, 53, 0.6);
+    transform: scale(1);
+  }
+}
+
+.sos-button:hover {
+  background-color: #bd3b2d;
+  transform: scale(1.1);
+}
+
+.sos-button:active {
+  transform: scale(0.95);
+}
+
+.sos-icon {
+  width: 80%;
+  height: 70%;
+}
+
+.hold-text {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* Mensagens de status */
+.sos-message {
+  border-radius: 12px;
+  padding: 3rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease;
+}
+
+.sos-message.success {
+  background-color: #3adbde70;
+  border: 1px solid #6c8f74;
+  color: #155724;
+}
+
+.sos-message.canceled {
+  background-color: #d6b5b9;
+  border: 1px solid #8d222d;
+  color: #721c24;
+  padding: 3rem;
+}
+
+.h3 {
+  margin-bottom: 10px;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.navigation-buttons button {
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #1325b4, #3adbde);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 12px 26px;
+  transition: 0.2s;
+}
+
+.navigation-buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.navigation-buttons button:active {
+  transform: scale(0.95);
+}
+
+/* Botão de cancelamento */
+.sos-cancel-btn {
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eb4635, #ff751f);
+  color: var(--branco);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 12px 26px;
+  width: 220px;
+  margin-top: 25px;
+  transition: 0.2s;
+}
+
+.sos-cancel-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+/* Animações */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .sos-page,
+  .sos-page.ready,
+  .sos-page.sent,
+  .sos-page.canceled {
+    width: 90vw !important; 
+    height: auto;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    justify-content: flex-start;
+    padding: 2.5rem 0;
+    margin: 0 -10vw; 
+    background-color: var(--branco);
+  }
+
+  .sos-header {
+    font-size: 1.4rem;
+    padding: 1rem;
+  }
+
+  .sos-logo img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .sos-logo {
+    font-size: 1.3rem;
+  }
+
+  .sos-button {
+    width: 150px;
+    height: 150px;
+    font-size: 1.25rem;
+  }
+
+  .hold-text {
+    font-size: 1.05rem;
+  }
+
+  .sos-warning-box {
+    padding: 1.6rem;
+    margin-bottom: 1.6rem;
+  }
+
+  .sos-message {
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .sos-cancel-btn {
+    width: 260px;
+    font-size: 1.1rem;
+    padding: 16px 30px;
+  }
+
+  .navigation-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    width: 280px;
+  }
+
+  .navigation-buttons button {
+    width: 100%;
+    max-width: 320px;
+    font-size: 1.05rem;
+    padding: 14px 0;
+  }
+}
